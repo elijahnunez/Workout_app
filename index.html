@@ -12,22 +12,22 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --bg: #f7f6f3;
-    --surface: #ffffff;
-    --surface2: #f0efe9;
-    --border: rgba(0,0,0,0.1);
-    --border-strong: rgba(0,0,0,0.2);
-    --text: #1a1a18;
-    --text-muted: #6b6b67;
-    --text-faint: #a0a09c;
-    --accent: #1a1a18;
-    --accent-fg: #f7f6f3;
-    --blue-bg: #e8f0fb;
-    --blue-text: #1a4a8a;
-    --green-bg: #e4f2e8;
-    --green-text: #1a5c2a;
-    --red-bg: #fce8e8;
-    --red-text: #8a1a1a;
+    --bg: #0f0f0e;
+    --surface: #1a1a18;
+    --surface2: #242422;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.16);
+    --text: #f0efeb;
+    --text-muted: #8a8a85;
+    --text-faint: #555552;
+    --accent: #e8e6e0;
+    --accent-fg: #0f0f0e;
+    --blue-bg: #0d1f3c;
+    --blue-text: #7ab3f5;
+    --green-bg: #0d2415;
+    --green-text: #6dba7d;
+    --red-bg: #2e0d0d;
+    --red-text: #f07070;
     --radius: 8px;
     --radius-lg: 12px;
     --mono: 'DM Mono', monospace;
@@ -859,10 +859,25 @@ async function loadHistory() {
           <div class="workout-meta" style="margin-bottom:8px">${w.date}${w.notes?' · '+w.notes:''}</div>
           ${warmupHtml}${setsHtml}
         </div>
-        <button class="btn btn-danger btn-sm" style="margin-left:12px;flex-shrink:0;align-self:flex-start" onclick="deleteWorkout(${w.id})">Delete</button>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;margin-left:12px;flex-shrink:0">
+          <button class="btn btn-secondary btn-sm" onclick='repeatWorkout(${JSON.stringify(w).replace(/'/g,"&#39;")})'>Repeat</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteWorkout(${w.id})">Delete</button>
+        </div>
       </div>
     </div>`;
   }).join('');
+}
+
+function repeatWorkout(w) {
+  document.getElementById('wk-name').value  = w.name;
+  document.getElementById('wk-date').value  = todayStr();
+  document.getElementById('wk-notes').value = '';
+  warmupRows = (w.warmup||[]).map(r => ({...r}));
+  if (!warmupRows.length) warmupRows = [mkWarmup()];
+  setBlocks = (w.sets||[]).map(b => ({ label: b.label, exercises: b.exercises.map(e => ({...e})) }));
+  renderWarmup();
+  renderSetBlocks();
+  showPage('log');
 }
 
 async function deleteWorkout(id) {
